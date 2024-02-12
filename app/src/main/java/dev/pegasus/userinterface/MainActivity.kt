@@ -1,0 +1,71 @@
+package dev.pegasus.userinterface
+
+import android.os.Bundle
+import android.widget.ArrayAdapter
+import androidx.appcompat.app.AppCompatActivity
+import dev.pegasus.userinterface.dataProvider.DpTypes
+import dev.pegasus.userinterface.databinding.ActivityMainBinding
+import dev.pegasus.userinterface.managers.ThemeManager
+import dev.pegasus.userinterface.managers.UiModeManager
+
+class MainActivity : AppCompatActivity() {
+
+    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+
+    private val themeManager by lazy { ThemeManager() }
+    private val uiModeManager by lazy { UiModeManager(this) }
+
+    private val dpTypes by lazy { DpTypes() }
+    private var type = 0
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        applyTheme()
+        fullScreen()
+        onCreated()
+    }
+
+    /**
+     *  Apply Dynamic Colors (from Material-3)
+     *  Note:   App's theme must be of Material3
+     */
+    private fun applyTheme() {
+        uiModeManager.initTheme()
+        themeManager.applyTheme(this)
+    }
+
+    /**
+     *  Apply Full Screen
+     */
+    private fun fullScreen() {
+        themeManager.fullScreen(this, binding.root, type)
+    }
+
+    /**
+     *  Your Code...
+     */
+    private fun onCreated() {
+        setUI()
+
+        binding.msUiMode.setOnCheckedChangeListener { _, isChecked -> applyThemeMode(isChecked) }
+        binding.mbApply.setOnClickListener { fullScreen() }
+    }
+
+    private fun setUI() {
+        binding.msUiMode.isChecked = uiModeManager.isDarkMode(this)
+
+        // fill drop-down menu
+        val arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, dpTypes.list)
+        binding.actList.setAdapter(arrayAdapter)
+        binding.actList.setText(dpTypes.list.first(), false)
+        binding.actList.setOnItemClickListener { _, _, position, _ ->
+            type = position
+        }
+    }
+
+    private fun applyThemeMode(isChecked: Boolean) {
+        uiModeManager.recreateNeeded = true
+        uiModeManager.applyTheme(isChecked)
+    }
+}
