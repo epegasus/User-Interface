@@ -12,4 +12,6 @@ object ConstantUtils {
     // Setting default manual value (in-case of exception)
     var statusBarHeight = 60
     var navBarHeight = 80
+
+    var type = 1
 }

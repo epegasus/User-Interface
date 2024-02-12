@@ -1,5 +1,6 @@
 package dev.pegasus.userinterface
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +8,7 @@ import dev.pegasus.userinterface.dataProvider.DpTypes
 import dev.pegasus.userinterface.databinding.ActivityMainBinding
 import dev.pegasus.userinterface.managers.ThemeManager
 import dev.pegasus.userinterface.managers.UiModeManager
+import dev.pegasus.userinterface.utils.ConstantUtils.type
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,7 +18,6 @@ class MainActivity : AppCompatActivity() {
     private val uiModeManager by lazy { UiModeManager(this) }
 
     private val dpTypes by lazy { DpTypes() }
-    private var type = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         setUI()
 
         binding.msUiMode.setOnCheckedChangeListener { _, isChecked -> applyThemeMode(isChecked) }
-        binding.mbApply.setOnClickListener { fullScreen() }
+        binding.mbApply.setOnClickListener { onApplyClick() }
     }
 
     private fun setUI() {
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         // fill drop-down menu
         val arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, dpTypes.list)
         binding.actList.setAdapter(arrayAdapter)
-        binding.actList.setText(dpTypes.list.first(), false)
+        binding.actList.setText(dpTypes.list[type], false)
         binding.actList.setOnItemClickListener { _, _, position, _ ->
             type = position
         }
@@ -67,5 +68,13 @@ class MainActivity : AppCompatActivity() {
     private fun applyThemeMode(isChecked: Boolean) {
         uiModeManager.recreateNeeded = true
         uiModeManager.applyTheme(isChecked)
+    }
+
+    private fun onApplyClick() {
+        fullScreen()
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()
     }
 }
